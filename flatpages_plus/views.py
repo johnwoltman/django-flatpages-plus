@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.core.xheaders import populate_xheaders
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
-from django.template import loader, RequestContext
+from django.template import loader, RequestContext, Context
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
 
@@ -13,6 +13,14 @@ from flatpages_plus.models import FlatPage
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 
+def list(request):
+    d = FlatPage.objects.all()
+    t = loader.get_template("flatpages_plus/list.html")
+    c = Context({
+            "data":d,
+         })
+    # return
+    return HttpResponse(t.render(c))
 # This view is called from FlatpageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
 # has not been called even if CsrfViewMiddleware is installed. So we need
@@ -36,7 +44,10 @@ def flatpage(request, url, **kwargs):
         return HttpResponseRedirect("%s/" % request.path)
     if not url.startswith('/'):
         url = "/" + url
-    f = get_object_or_404(FlatPage, url__exact=url, #status='p',
+        
+    extracted_url = url.split("/")[1]
+    
+    f = get_object_or_404(FlatPage, url__exact=extracted_url, #status='p',
         sites__id__exact=settings.SITE_ID)
     return render_flatpage(request, f)
 

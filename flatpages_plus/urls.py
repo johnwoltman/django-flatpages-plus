@@ -5,5 +5,6 @@ urlpatterns = patterns('flatpages_plus.views',
     #     view='flatpage',
     #     name='flatpage'
     # ),
+    (r'^list/', 'list'),
     (r'^(?P<url>.*)$', 'flatpage'),
 )
