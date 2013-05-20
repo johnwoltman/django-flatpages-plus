@@ -4,11 +4,14 @@
 
 {% block base_content %}
 
-    <table width="100%" border="1">
+    <table width="100%" class="table table-bordered table-hover">
+    	<thead>
     	<th>Name</th>
     	<th>Title</t>
     	<th>Url</t>
     	<th>Actions</th>
+    	</thead>
+    	<tbody>
     {% for list in data %}
     	<tr>
     		<td>{{ list.name }}</td>
@@ -16,7 +19,8 @@
     		<td>{{ list.url }}</td>
     		<td><a href="/pages/{{ list.url }}/">View</a></td>
     	</tr>
-    {% endfor %}     
+    {% endfor %}
+    </tbody>     
     </table>
 
     {{ flatpage.content }}
