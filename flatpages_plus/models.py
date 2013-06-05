@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 from taggit.managers import TaggableManager
 
 from flatpages_plus.managers import FlatpagesManager
-
+from tinymce.models import HTMLField
 
 class FlatPage(models.Model):
     """
@@ -24,7 +24,7 @@ class FlatPage(models.Model):
     name = models.CharField(_('link name'), max_length=80, default=_('unamed'), 
         help_text=_('The name of the page is used in creating links to \
         pages and the breadcrumbs.'))
-    content = models.TextField(_('content'), blank=True)
+    content = HTMLField(blank=True)
     owner = models.ForeignKey(User, verbose_name=_('owner'), default=1,
         help_text=_('The user that is responsible for this page.'))
     views = models.IntegerField(_('views'), default=0, blank=True, null=True, 
@@ -34,6 +34,8 @@ class FlatPage(models.Model):
         default='d', help_text=_('Whether or not the page is visible on the site'))
     tags = TaggableManager(blank=True, help_text=_('A comma seperated list of \
         tags that help to relate pages to each other.'))
+    metadata = models.TextField(blank=True, 
+        help_text=_('It has the meta data information for showing in webpage'))
     enable_comments = models.BooleanField(_('enable comments'))
     template_name = models.CharField(_('template name'), max_length=70, blank=True,
         help_text=_("Example: 'flatpages_plus/contact_page.html'. If this isn't \
