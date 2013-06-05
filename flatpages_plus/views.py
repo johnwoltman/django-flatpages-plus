@@ -4,14 +4,42 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.xheaders import populate_xheaders
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import loader, RequestContext, Context
 from django.utils.safestring import mark_safe
 from django.views.decorators.csrf import csrf_protect
 
 from flatpages_plus.models import FlatPage
+from forms import FlatpageForm
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
+
+def update(request, id):
+    if request.method == 'POST':
+        a = FlatPage.objects.get(pk=id)
+        f = FlatpageForm(request.POST, instance=a)
+        f.save()
+        
+        d = FlatPage.objects.all()
+        t = loader.get_template("flatpages_plus/list.html")
+        c = Context({
+            "data":d,
+            })
+    # return
+        return HttpResponse(t.render(c))
+    else:
+        d = FlatPage.objects.get(pk=id)
+        form = FlatpageForm(instance=d)
+        #t = loader.get_template("flatpages_plus/update.html")
+        #c = Context({
+         #   "form":form,
+          #  })
+    # return
+        #return HttpResponse(t.render(c))
+        return render_to_response("flatpages_plus/update.html",{
+            "form": form }, RequestContext(request),
+        )
+    
 
 def list(request):
     d = FlatPage.objects.all()
