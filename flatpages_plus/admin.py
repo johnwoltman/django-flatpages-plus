@@ -1,12 +1,12 @@
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
 
-from flatpages_plus.forms import FlatpageForm
+from flatpages_plus.forms import FlatpageForm, FlatpageAdminForm
 from flatpages_plus.models import FlatPage
 
 
 class FlatPageAdmin(admin.ModelAdmin):
-    form = FlatpageForm
+    form = FlatpageAdminForm
     fieldsets = (
         (None, {'fields': (
             'url',
@@ -16,6 +16,7 @@ class FlatPageAdmin(admin.ModelAdmin):
             'status',
             'content',
             'tags',
+            'metadata',
         )}),
         (_('Advanced options'), {
             'classes': ('collapse',), 
