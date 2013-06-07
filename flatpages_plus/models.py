@@ -34,7 +34,7 @@ class FlatPage(models.Model):
         default='d', help_text=_('Whether or not the page is visible on the site'))
     tags = TaggableManager(blank=True, help_text=_('A comma seperated list of \
         tags that help to relate pages to each other.'))
-    metadata = models.TextField(blank=True, 
+    metadata = models.TextField(blank=True, null=True,
         help_text=_('It has the meta data information for showing in webpage'))
     enable_comments = models.BooleanField(_('enable comments'))
     template_name = models.CharField(_('template name'), max_length=70, blank=True,
@@ -43,7 +43,7 @@ class FlatPage(models.Model):
     registration_required = models.BooleanField(_('registration required'), 
         help_text=_("If this is checked, only logged-in users will be able \
         to view the page."))
-    sites = models.ManyToManyField(Site, default=[settings.SITE_ID])
+    sites = models.ManyToManyField(Site, default=[settings.SITE_ID], blank=True, null=True)
     created = models.DateTimeField(_('created'), auto_now_add=True, 
         blank=True, null=True)
     modified = models.DateTimeField(_('modified'), auto_now=True, 
@@ -67,3 +67,7 @@ class FlatPage(models.Model):
     
     def get_absolute_url(self): 
         return '%s' % self.url
+    
+#    def save(self):
+#        self.sites = [Site.objects.get(pk=settings.SITE_ID)]
+#        super(FlatPage, self).save()    

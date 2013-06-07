@@ -11,8 +11,39 @@ from django.views.decorators.csrf import csrf_protect
 
 from flatpages_plus.models import FlatPage
 from forms import FlatpageForm
+from django.contrib.sites.models import Site
+
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
+
+def add(request):
+    if request.method == 'POST':
+        
+        post_values = request.POST.copy()
+        f = FlatpageForm(post_values)
+        if f.is_valid():
+            post_values['sites'] = [Site.objects.get(pk=1)]
+            newflatpage = f.save(commit=False)
+            newflatpage.save(post_values)
+            f.save_m2m()
+            
+            d = FlatPage.objects.all()
+            t = loader.get_template("flatpages_plus/list.html")
+            c = Context({
+                "data":d,
+            })
+            return HttpResponse(t.render(c))
+        else:
+            print 'not valid'
+            form = FlatpageForm(initial={'sites':Site.objects.get(pk=1)})
+            return render_to_response("flatpages_plus/add.html",{
+                "form": form }, RequestContext(request),
+            )
+    else:
+        form = FlatpageForm()
+        return render_to_response("flatpages_plus/add.html",{
+            "form": form }, RequestContext(request),
+        )
 
 def update(request, id):
     if request.method == 'POST':
@@ -43,12 +74,9 @@ def update(request, id):
 
 def list(request):
     d = FlatPage.objects.all()
-    t = loader.get_template("flatpages_plus/list.html")
-    c = Context({
-            "data":d,
-         })
-    # return
-    return HttpResponse(t.render(c))
+    return render_to_response("flatpages_plus/list.html",{
+            "data": d }, RequestContext(request),
+        )
 # This view is called from FlatpageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
 # has not been called even if CsrfViewMiddleware is installed. So we need
@@ -74,9 +102,8 @@ def flatpage(request, url, **kwargs):
         url = "/" + url
         
     extracted_url = url.split("/")[1]
-    
-    f = get_object_or_404(FlatPage, url__exact=extracted_url, #status='p',
-        sites__id__exact=settings.SITE_ID)
+    f = get_object_or_404(FlatPage, url__exact=extracted_url) #status='p',sites__id__exact=settings.SITE_ID
+    print f
     return render_flatpage(request, f)
 
 @csrf_protect
@@ -85,13 +112,17 @@ def render_flatpage(request, f):
     Internal interface to the flat page view.
     """
     # If the page is a draft, only show it to users who are staff.
+    '''
     if f.status == 'd' and not request.user.is_authenticated():
         raise Http404
+    '''
     # If registration is required for accessing this page, and the user isn't
     # logged in, redirect to the login page.
+    '''
     if f.registration_required and not request.user.is_authenticated():
         from django.contrib.auth.views import redirect_to_login
         return redirect_to_login(request.path)
+    '''
     if f.template_name:
         t = loader.select_template((f.template_name, DEFAULT_TEMPLATE))
     else:
@@ -195,4 +226,5 @@ def render_flatpage(request, f):
     response = HttpResponse(t.render(c))
     populate_xheaders(request, response, FlatPage, f.id)
     return response
+
     # TODO: Use render_to_response here...
