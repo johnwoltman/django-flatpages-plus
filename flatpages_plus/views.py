@@ -12,17 +12,52 @@ from django.views.decorators.csrf import csrf_protect
 from flatpages_plus.models import FlatPage
 from forms import FlatpageForm
 from django.contrib.sites.models import Site
+from django.http import HttpRequest
 
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 
+def search(request):
+    if request.method == 'GET':
+        query = request.GET.get('q')
+        print query
+        d = FlatPage.objects.filter(name__contains = query)
+        t = loader.get_template("flatpages_plus/list.html")
+        c = Context({
+            "data":d,
+        })
+        return HttpResponse(t.render(c))
+    else:
+        d = FlatPage.objects.all()
+        t = loader.get_template("flatpages_plus/list.html")
+        c = Context({
+            "data":d,
+        })
+        return HttpResponse(t.render(c))
+    
+def delete(request, id):
+    d = FlatPage.objects.get(pk=id)
+    print d
+    t = loader.get_template("flatpages_plus/delete.html")
+    c = Context({
+        "data":d,
+    })
+    return HttpResponse(t.render(c))
+def confirm_delete(request, id):
+    p = FlatPage.objects.get(pk=id)
+    p.delete()
+    d = FlatPage.objects.all()
+    t = loader.get_template("flatpages_plus/list.html")
+    c = Context({
+        "data":d,
+    })
+    return HttpResponse(t.render(c))
 def add(request):
     if request.method == 'POST':
         
         post_values = request.POST.copy()
         f = FlatpageForm(post_values)
         if f.is_valid():
-            post_values['sites'] = [Site.objects.get(pk=1)]
             newflatpage = f.save(commit=False)
             newflatpage.save(post_values)
             f.save_m2m()
@@ -34,30 +69,34 @@ def add(request):
             })
             return HttpResponse(t.render(c))
         else:
-            print 'not valid'
-            form = FlatpageForm(initial={'sites':Site.objects.get(pk=1)})
             return render_to_response("flatpages_plus/add.html",{
-                "form": form }, RequestContext(request),
+                "form": f }, RequestContext(request),
             )
     else:
         form = FlatpageForm()
+        print form.errors
         return render_to_response("flatpages_plus/add.html",{
             "form": form }, RequestContext(request),
         )
 
 def update(request, id):
     if request.method == 'POST':
-        a = FlatPage.objects.get(pk=id)
-        f = FlatpageForm(request.POST, instance=a)
-        f.save()
-        
-        d = FlatPage.objects.all()
-        t = loader.get_template("flatpages_plus/list.html")
-        c = Context({
-            "data":d,
-            })
-    # return
-        return HttpResponse(t.render(c))
+        f = FlatpageForm(request.POST)
+        if f.is_valid():
+            a = FlatPage.objects.get(pk=id)
+            f = FlatpageForm(request.POST, instance=a)
+            f.save()
+            
+            d = FlatPage.objects.all()
+            t = loader.get_template("flatpages_plus/list.html")
+            c = Context({
+                "data":d,
+                })
+            return HttpResponse(t.render(c))
+        else:
+            return render_to_response("flatpages_plus/add.html",{
+                "form": f }, RequestContext(request),
+            )
     else:
         d = FlatPage.objects.get(pk=id)
         form = FlatpageForm(instance=d)
