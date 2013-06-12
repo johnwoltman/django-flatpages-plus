@@ -1,5 +1,5 @@
 import re
-
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.xheaders import populate_xheaders
@@ -13,18 +13,20 @@ from flatpages_plus.models import FlatPage
 from forms import FlatpageForm
 from django.contrib.sites.models import Site
 from django.http import HttpRequest
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 DEFAULT_TEMPLATE = 'flatpages_plus/default.html'
 
+@login_required
 def search(request):
+    
     if request.method == 'GET':
         query = request.GET.get('q')
-        print query
         d = FlatPage.objects.filter(name__contains = query)
         t = loader.get_template("flatpages_plus/list.html")
         c = Context({
-            "data":d,
+            "data":d,"query":query
         })
         return HttpResponse(t.render(c))
     else:
@@ -34,24 +36,39 @@ def search(request):
             "data":d,
         })
         return HttpResponse(t.render(c))
-    
+
+@login_required    
 def delete(request, id):
     d = FlatPage.objects.get(pk=id)
-    print d
     t = loader.get_template("flatpages_plus/delete.html")
     c = Context({
         "data":d,
     })
     return HttpResponse(t.render(c))
+
+@login_required
 def confirm_delete(request, id):
     p = FlatPage.objects.get(pk=id)
     p.delete()
     d = FlatPage.objects.all()
+    paginator = Paginator(d, 2) # Show 2 help on each row
+    page = request.GET.get('page')
+            
+    try:
+        helps = paginator.page(page)
+    except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+        helps = paginator.page(1)
+    except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+        helps = paginator.page(paginator.num_pages)
+            
     t = loader.get_template("flatpages_plus/list.html")
     c = Context({
-        "data":d,
+        "data":helps,
     })
     return HttpResponse(t.render(c))
+@login_required
 def add(request):
     if request.method == 'POST':
         
@@ -63,9 +80,20 @@ def add(request):
             f.save_m2m()
             
             d = FlatPage.objects.all()
+            paginator = Paginator(d, 2) # Show 2 help on each row
+            page = request.GET.get('page')
+            
+            try:
+                helps = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                helps = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                helps = paginator.page(paginator.num_pages)
             t = loader.get_template("flatpages_plus/list.html")
             c = Context({
-                "data":d,
+                "data":helps,
             })
             return HttpResponse(t.render(c))
         else:
@@ -79,6 +107,7 @@ def add(request):
             "form": form }, RequestContext(request),
         )
 
+@login_required
 def update(request, id):
     if request.method == 'POST':
         f = FlatpageForm(request.POST)
@@ -88,9 +117,21 @@ def update(request, id):
             f.save()
             
             d = FlatPage.objects.all()
+            paginator = Paginator(d, 2) # Show 2 help on each row
+            page = request.GET.get('page')
+            
+            try:
+                helps = paginator.page(page)
+            except PageNotAnInteger:
+                # If page is not an integer, deliver first page.
+                helps = paginator.page(1)
+            except EmptyPage:
+                # If page is out of range (e.g. 9999), deliver last page of results.
+                helps = paginator.page(paginator.num_pages)
+                
             t = loader.get_template("flatpages_plus/list.html")
             c = Context({
-                "data":d,
+                "data":helps,
                 })
             return HttpResponse(t.render(c))
         else:
@@ -110,11 +151,22 @@ def update(request, id):
             "form": form }, RequestContext(request),
         )
     
-
+@login_required
 def list(request):
     d = FlatPage.objects.all()
+    paginator = Paginator(d, 2) # Show 2 help on each row
+    page = request.GET.get('page')
+    
+    try:
+        helps = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        helps = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        helps = paginator.page(paginator.num_pages)
     return render_to_response("flatpages_plus/list.html",{
-            "data": d }, RequestContext(request),
+            "data": helps }, RequestContext(request),
         )
 # This view is called from FlatpageFallbackMiddleware.process_response
 # when a 404 is raised, which often means CsrfViewMiddleware.process_view
