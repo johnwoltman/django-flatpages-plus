@@ -1,0 +1,32 @@
+{% extends "flatpages_plus/base_flatpages_plus.html" %}
+
+{% block title %}{{ flatpage.title }}{% endblock %}
+
+{% block base_content %}
+
+    {% if breadcrumbs %}
+        <div id="breadcrumbs">
+            {% for b in breadcrumbs %}
+                {# If the list of breadcrumbs is only one item long, then we don't need to show the breadcrumbs, as it would be redundant. #}
+                {% if breadcrumbs|length != 1 %}
+                    {# If this is not the last item, let't try to show the item as a link. #}
+                    {% if not forloop.last %}
+                        {# If there is a URL to the page, that means it exists in the system, so let's link to it. #}
+                        {% if b.url %}
+                            <a href="{{ b.url }}" title="View the {{ b.name }} page">{{ b.name }}</a> &raquo;
+                        {# If there is no URL, that means the flatpage doesn't exist, so we don't want to show a link to it since that would raise a 404 error. #}
+                        {% else %}
+                            {{ b.name }} &raquo;
+                        {% endif %}
+                    {# If this is the last breadcrumb item, show it without a link (since we are already on the page, we don't need to link to it.) #}
+                    {% else %}
+                        {{ b.name }}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {{ flatpage.content }}
+
+{% endblock %}
