@@ -14,6 +14,6 @@ setup(
     'templates/*/*/*.html',
     ],
     packages=find_packages(),
-    package_data=dict( (package_name, template_patterns)
-                   for package_name in packages ) 
+#    package_data=dict( (package_name, template_patterns)
+#                   for package_name in packages ) 
 )
