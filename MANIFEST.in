@@ -1,2 +1,2 @@
-include README.markdown
-recursive-include templates *.html
+include *.py, *.html
+
