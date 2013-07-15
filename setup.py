@@ -9,5 +9,4 @@ setup(
     url='https://github.com/danawoodman/django-flatpages-plus',
     license='MIT',
     packages=find_packages(),
-    package_data={'': ['*.html']},
 )
