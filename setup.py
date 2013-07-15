@@ -8,5 +8,10 @@ setup(
     author_email='dana@danawoodman.com',
     url='https://github.com/danawoodman/django-flatpages-plus',
     license='MIT',
+    template_patterns = [
+        'templates/*.html',
+        'templates/*/*.html',
+        'templates/*/*/*.html',
+    ]
     packages=find_packages(),
 )
