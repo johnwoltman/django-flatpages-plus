@@ -12,6 +12,6 @@ setup(
         'templates/*.html',
         'templates/*/*.html',
         'templates/*/*/*.html',
-    ]
+    ],
     packages=find_packages(),
 )
