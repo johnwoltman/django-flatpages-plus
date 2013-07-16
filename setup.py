@@ -8,6 +8,6 @@ setup(
     description='A more robust FlatPage app for Django.',
     author='Dana Woodman',
     author_email='dana@danawoodman.com',
-    url='https://github.com/shaijudavis/django-flatpages-plus',
+    url='https://github.com/danawoodman/django-flatpages-plus',
     license='MIT',
 )
