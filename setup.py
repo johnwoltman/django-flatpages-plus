@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='django-flatpages-plus',
@@ -8,5 +8,6 @@ setup(
     author_email='dana@danawoodman.com',
     url='https://github.com/danawoodman/django-flatpages-plus',
     license='MIT',
-    packages=find_packages(),
+    packages=['flatpages_plus'],
+    include_package_data=True, 
 )
