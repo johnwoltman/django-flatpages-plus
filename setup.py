@@ -10,5 +10,4 @@ setup(
     author_email='dana@danawoodman.com',
     url='https://github.com/shaijudavis/django-flatpages-plus',
     license='MIT',
-    install_requires=['setuptools'],
 )
