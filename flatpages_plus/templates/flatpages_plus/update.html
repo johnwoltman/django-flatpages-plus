@@ -2,7 +2,7 @@
 {% block main %}
 
 <form method="post" action="" class="form-horizontal">{% csrf_token %}
-        {% for field in formset %}
+        {% for field in form %}
         	{% if field.name == 'sites' %}
     	     	   <div class="controls" style="display:none"> {{ field }}</div>
         	{% else %}
